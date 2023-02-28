@@ -133,11 +133,10 @@ final class SelectQueryBuilder implements QueryInterface
 
     /**
      * Allows join statements to be defined as a RawExp object or a Closure
-     * @param Closure|RawExp|string $table
+     * @param Closure|RawExp|array|string $table
      * @return string
-     * @throws Exception
      */
-    private function processJoinTable(Closure|RawExp|string $table): string
+    private function processJoinTable(Closure|RawExp|array|string $table): string
     {
         return match ($table::class) {
             Closure::class => $this->getSubSelectSql($table),
