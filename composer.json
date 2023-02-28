@@ -1,10 +1,13 @@
 {
-    "name": "selective/database",
+    "name": "minds/mysql-fluent-interface",
     "type": "library",
     "description": "SQL query builder",
+    "version": "1.0.0",
     "keywords": [
+        "minds",
         "sql",
         "mysql",
+        "fluent",
         "query",
         "builder",
         "database"

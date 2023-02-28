@@ -3,6 +3,7 @@
 namespace Selective\Database;
 
 use Closure;
+use Exception;
 
 /**
  * Select Query.
@@ -105,6 +106,7 @@ final class SelectQueryBuilder implements QueryInterface
      * @param array|null $join The join
      *
      * @return array The sql
+     * @throws Exception
      */
     public function getJoinSql(array $sql, array $join = null): array
     {
@@ -114,7 +116,9 @@ final class SelectQueryBuilder implements QueryInterface
         foreach ($join as $item) {
             [$type, $table, $leftField, $operator, $rightField] = $item;
             $joinType = strtoupper($type) . ' JOIN';
-            $table = $this->quoter->quoteName($table);
+
+
+            $table = $this->processJoinTable($table);
             if ($leftField instanceof RawExp) {
                 $sql[] = sprintf('%s %s ON (%s)', $joinType, $table, $leftField->getValue());
             } else {
@@ -125,6 +129,28 @@ final class SelectQueryBuilder implements QueryInterface
         }
 
         return $sql;
+    }
+
+    /**
+     * Allows join statements to be defined as a RawExp object or a Closure
+     * @param Closure|RawExp|string $table
+     * @return string
+     * @throws Exception
+     */
+    private function processJoinTable(Closure|RawExp|string $table): string
+    {
+        return match ($table::class) {
+            Closure::class => $this->getSubSelectSql($table),
+            RawExp::class => $table->getValue(),
+            default => $this->quoter->quoteName($table)
+        };
+    }
+
+    private function getSubSelectSql(Closure $callable): string
+    {
+        $query = new SelectQuery($this->connection);
+        $callable($query);
+        return $query->build(false);
     }
 
     /**
