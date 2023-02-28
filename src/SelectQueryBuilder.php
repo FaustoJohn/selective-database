@@ -138,10 +138,14 @@ final class SelectQueryBuilder implements QueryInterface
      */
     private function processJoinTable(Closure|RawExp|array|string $table): string
     {
+        if (gettype($table) !== "object") {
+            return $this->quoter->quoteName($table);
+        }
+
         return match ($table::class) {
             Closure::class => $this->getSubSelectSql($table),
             RawExp::class => $table->getValue(),
-            default => $this->quoter->quoteName($table)
+            default => throw new \InvalidArgumentException("table must either one of the following: Closure | RawExp | array | string")
         };
     }
 
