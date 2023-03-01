@@ -7,7 +7,7 @@ use PDO;
 /**
  * Database connection.
  */
-final class Connection
+class Connection
 {
     /**
      * @var PDO
