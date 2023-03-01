@@ -11,7 +11,7 @@ use RuntimeException;
  *
  * https://dev.mysql.com/doc/refman/5.7/en/update.html
  */
-final class UpdateQuery implements QueryInterface
+class UpdateQuery implements QueryInterface
 {
     /**
      * @var PDO

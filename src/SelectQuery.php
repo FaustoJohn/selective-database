@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Select Query.
  */
-final class SelectQuery implements QueryInterface
+class SelectQuery implements QueryInterface
 {
     /**
      * @var Connection

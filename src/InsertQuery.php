@@ -11,7 +11,7 @@ use RuntimeException;
  *
  * https://dev.mysql.com/doc/refman/5.7/en/insert.html
  */
-final class InsertQuery implements QueryInterface
+class InsertQuery implements QueryInterface
 {
     /**
      * @var PDO
