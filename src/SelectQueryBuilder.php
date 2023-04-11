@@ -4,6 +4,7 @@ namespace Selective\Database;
 
 use Closure;
 use Exception;
+use InvalidArgumentException;
 
 /**
  * Select Query.
@@ -86,17 +87,36 @@ final class SelectQueryBuilder implements QueryInterface
      * Get sql.
      *
      * @param array $sql The sql
-     * @param string|array $from The table
+     * @param Closure|RawExp|string $from The table
      *
      * @return array The sql
      */
-    public function getFromSql(array $sql, $from): array
+    public function getFromSql(array $sql, Closure|RawExp|string $from): array
     {
-        if (!empty($from)) {
-            $sql[] = 'FROM ' . $this->quoter->quoteName($from);
+        if (empty($from)) {
+            return $sql;
         }
 
+        $sql[] = $this->processFromTable($from);
+
         return $sql;
+    }
+
+    /**
+     * @param Closure|RawExp|string $table The from table
+     * @return string
+     */
+    private function processFromTable(Closure|RawExp|string $table): string
+    {
+        if (gettype($table) !== "object") {
+            return 'FROM ' . $this->quoter->quoteName($table);
+        }
+
+        return match ($table::class) {
+            Closure::class => $this->getSubSelectSql($table),
+            RawExp::class => $table->getValue(),
+            default => throw new InvalidArgumentException("table must either one of the following: Closure | RawExp | array | string")
+        };
     }
 
     /**
@@ -133,7 +153,7 @@ final class SelectQueryBuilder implements QueryInterface
 
     /**
      * Allows join statements to be defined as a RawExp object or a Closure
-     * @param Closure|RawExp|array|string $table
+     * @param Closure|RawExp|array|string $table The table
      * @return string
      */
     private function processJoinTable(Closure|RawExp|array|string $table): string
@@ -145,10 +165,14 @@ final class SelectQueryBuilder implements QueryInterface
         return match ($table::class) {
             Closure::class => $this->getSubSelectSql($table),
             RawExp::class => $table->getValue(),
-            default => throw new \InvalidArgumentException("table must either one of the following: Closure | RawExp | array | string")
+            default => throw new InvalidArgumentException("table must be of type: Closure|RawExp|array|string")
         };
     }
 
+    /**
+     * @param Closure $callable The callback function
+     * @return string
+     */
     private function getSubSelectSql(Closure $callable): string
     {
         $query = new SelectQuery($this->connection);
