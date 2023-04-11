@@ -2,6 +2,7 @@
 
 namespace Selective\Database;
 
+use Closure;
 use PDO;
 use PDOStatement;
 use RuntimeException;
@@ -37,9 +38,9 @@ class SelectQuery implements QueryInterface
     private ?string $alias = null;
 
     /**
-     * @var string|array
+     * @var Closure|RawExp|string
      */
-    private $from = '';
+    private Closure|RawExp|string $from = '';
 
     /**
      * @var array
@@ -260,11 +261,11 @@ class SelectQuery implements QueryInterface
     /**
      * From.
      *
-     * @param string|array $table Table name
+     * @param Closure|RawExp|string $table Table
      *
      * @return self
      */
-    public function from($table): self
+    public function from(Closure|RawExp|string $table): self
     {
         $this->from = $table;
 
