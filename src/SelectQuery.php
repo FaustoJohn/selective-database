@@ -396,12 +396,12 @@ class SelectQuery implements QueryInterface
     /**
      * Left join with complex conditions.
      *
-     * @param string|array $table Table name
+     * @param string|array|Closure|RawExp $table Table name
      * @param string $conditions The ON conditions e.g. 'user.id = article.user_id'
      *
      * @return self
      */
-    public function leftJoinRaw($table, string $conditions): self
+    public function leftJoinRaw(string|array|Closure|RawExp $table, string $conditions): self
     {
         $this->join[] = ['left', $table, new RawExp($conditions), null, null, null];
 
