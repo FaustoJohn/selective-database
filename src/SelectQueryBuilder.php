@@ -97,7 +97,7 @@ final class SelectQueryBuilder implements QueryInterface
             return $sql;
         }
 
-        $sql[] = $this->processFromTable($from);
+        $sql[] = 'FROM ' . $this->processFromTable($from);
 
         return $sql;
     }
@@ -109,7 +109,7 @@ final class SelectQueryBuilder implements QueryInterface
     private function processFromTable(Closure|RawExp|string $table): string
     {
         if (gettype($table) !== "object") {
-            return 'FROM ' . $this->quoter->quoteName($table);
+            return $this->quoter->quoteName($table);
         }
 
         return match ($table::class) {
