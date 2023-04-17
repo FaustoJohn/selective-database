@@ -93,8 +93,14 @@ final class Condition
                 continue;
             }
             [$leftField, $operator, $rightField] = $conditions;
+
+            $withNamedParameters = false;
+            if (isset($conditions[3]) && is_bool($conditions[3])) {
+                $withNamedParameters = $conditions[3];
+            }
+
             $leftField = $this->quoter->quoteName($leftField);
-            [$rightField, $operator] = $this->getRightFieldValue($rightField, $operator);
+            [$rightField, $operator] = $this->getRightFieldValue($rightField, $operator, $withNamedParameters);
 
             $sql[] = sprintf('%s %s %s %s', $whereType, $leftField, $operator, $rightField);
         }
@@ -107,15 +113,31 @@ final class Condition
      *
      * https://dev.mysql.com/doc/refman/5.7/en/comparison-operators.html
      *
-     * @param string|array $rightField The right field
+     * @param string|array|RawExp|null $rightField The right field
      * @param string|mixed $comparison The comparison
+     * @param bool $withNamedParameters If the provided right field should be built using named parameters
      *
      * @return array The value
      */
-    private function getRightFieldValue($rightField, $comparison): array
-    {
+    private function getRightFieldValue(
+        string|array|RawExp|null $rightField,
+        mixed $comparison,
+        bool $withNamedParameters = false
+    ): array {
         if ($comparison === 'in' || $comparison === 'not in') {
-            $rightField = '(' . implode(', ', $this->quoter->quoteArray((array)$rightField)) . ')';
+            $props = [];
+            if ($withNamedParameters) {
+                $parameterName = array_key_first((array) $rightField);
+                $totalParameters = ((array)$rightField)[$parameterName];
+
+                for ($i = 0; $i < $totalParameters; $i++) {
+                    $props[] = (new RawExp(":$parameterName$i"))->getValue();
+                }
+            } else {
+                $props = $this->quoter->quoteArray((array) $rightField);
+            }
+
+            $rightField = '(' . implode(', ', $props) . ')';
         } elseif (
             $comparison === 'greatest' ||
             $comparison === 'least' ||

@@ -425,6 +425,30 @@ class SelectQuery implements QueryInterface
     }
 
     /**
+     * @param $leftField
+     * @param mixed $operator
+     * @param string $parameterName
+     * @param int $totalParameters
+     * @return self
+     */
+    public function whereWithNamedParameters(
+        mixed $leftField,
+        mixed $operator,
+        string $parameterName,
+        int $totalParameters = 1
+    ): self {
+        $this->condition->where([
+            [
+                $leftField,
+                $operator,
+                [$parameterName => $totalParameters],
+                true
+            ]
+        ]);
+        return $this;
+    }
+
+    /**
      * Add a raw AND WHERE condition.
      *
      * @param string $condition The raw where conditions e.g. 'user.id = article.user_id'
