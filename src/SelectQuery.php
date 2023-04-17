@@ -438,12 +438,10 @@ class SelectQuery implements QueryInterface
         int $totalParameters = 1
     ): self {
         $this->condition->where([
-            [
-                $leftField,
-                $operator,
-                [$parameterName => $totalParameters],
-                true
-            ]
+            $leftField,
+            $operator,
+            [$parameterName => $totalParameters],
+            true
         ]);
         return $this;
     }
