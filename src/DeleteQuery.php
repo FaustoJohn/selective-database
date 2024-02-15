@@ -11,7 +11,7 @@ use RuntimeException;
  *
  * @see https://dev.mysql.com/doc/refman/5.7/en/delete.html
  */
-final class DeleteQuery implements QueryInterface
+class DeleteQuery implements QueryInterface
 {
     /**
      * @var PDO
