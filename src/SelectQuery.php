@@ -53,6 +53,11 @@ class SelectQuery implements QueryInterface
     private array $union = [];
 
     /**
+     * @var array
+     */
+    private array $intersect = [];
+
+    /**
      * @var Condition Where conditions
      */
     private Condition $condition;
@@ -313,6 +318,23 @@ class SelectQuery implements QueryInterface
     public function unionDistinct(SelectQuery $query): self
     {
         $this->union[] = ['DISTINCT', $query->build(false)];
+
+        return $this;
+    }
+
+
+
+    /**
+     * UNION is used to combine the result from multiple
+     * SELECT statements into a single result set.
+     *
+     * @param SelectQuery $query The query to combine
+     *
+     * @return self
+     */
+    public function intersect(SelectQuery $query): self
+    {
+        $this->intersect[] = $query->build(false);
 
         return $this;
     }
@@ -730,6 +752,7 @@ class SelectQuery implements QueryInterface
         $sql = $builder->getOrderBySql($sql, $this->orderBy);
         $sql = $builder->getLimitSql($sql, $this->limit, $this->offset);
         $sql = $builder->getUnionSql($sql, $this->union);
+        $sql = $builder->getIntersectSql($sql, $this->intersect);
         $result = trim(implode(' ', $sql));
         $result = $builder->getAliasSql($result, $this->alias);
 

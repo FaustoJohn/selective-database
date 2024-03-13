@@ -259,6 +259,19 @@ final class SelectQueryBuilder implements QueryInterface
         return $sql;
     }
 
+    public function getIntersectSql(array $sql, array $intersect): array
+    {
+        if (empty($intersect)) {
+            return $sql;
+        }
+
+        foreach ($intersect as $item) {
+            $sql[] = 'INTERSECT ' . trim($item);
+        }
+
+        return $sql;
+    }
+
     /**
      * Get sql.
      *
